@@ -5,7 +5,7 @@ import { useParams } from "react-router-dom";
 const words = ["apple", "banana", "orange", "mango", "grape"];
 
 function HangerMan() {
-  const params = useParams();
+  const params = useParams(); //TOOD: page breaks when word is 20 or more letters long
   const [word, setWord] = useState("");
   const [maskedWord, setMaskedWord] = useState("");
   const [letters, setLetters] = useState([]);
@@ -14,6 +14,7 @@ function HangerMan() {
   const [isGameWon, setIsGameWon] = useState(false);
   const [isGameLost, setIsGameLost] = useState(false);
   const maxNumGuesses = 6;
+  const passphrase = "1234567890"; 
 
   // Generate a random word from the words array
   const generateWord = () => {
@@ -57,8 +58,13 @@ function HangerMan() {
   const resetGame = () => {
     var newWord = "";
 
-    console.log(params);
-    if (params.word !=  null){ newWord = params.word; }
+    if (params.word !=  null){ 
+      //decrypt params and set as word
+      const CryptoJS = require('crypto-js');
+      const bytes = CryptoJS.AES.decrypt(params.word, passphrase);
+      const original = bytes.toString(CryptoJS.enc.Utf8);
+      newWord = original;
+     }
     else { newWord = generateWord(); }
     
     setWord(newWord);

@@ -9,6 +9,7 @@ function CustomGameForm() {
   const navigate = useNavigate();
   const [word, setWord] = useState("");
   const [url, setUrl] = useState("");
+  const passphrase = "1234567890";
 
   const handleChange = (event) => {
     setWord(event.target.value);
@@ -16,8 +17,9 @@ function CustomGameForm() {
 
   const handleSubmit = (event) => {
     event.preventDefault();
-    //navigate("/${word}");
-    setUrl(document.URL.replace("form","")+word.toLowerCase()); //TODO: word is visible in URL
+    const CryptoJS = require('crypto-js');
+    var encryptedText = CryptoJS.AES.encrypt(word.toLowerCase(), passphrase).toString();  //encrypt word
+    setUrl(document.URL.replace("form","")+encryptedText);
   };
   
   return (
