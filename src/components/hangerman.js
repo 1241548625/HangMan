@@ -114,31 +114,35 @@ function HangerMan() {
   }, []);
 
   return (
+    <div>
+      <h1>Hangman</h1>
+      <p>Find the hidden word - Enter a letter</p>
+      <p>{maskedWord}</p>
+      <p>
+        {wrongLetters.length > 0 && "Wrong letters: "}
+        {wrongLetters.map((letter, i) => (
+          <span key={i}>{letter.toUpperCase()}</span>
+        ))}
+      </p>
+      {isGameWon && (
         <div>
-        <h1>Hangman</h1>
-        <p>Find the hidden word - Enter a letter</p>
-        <p className="masked-word">{maskedWord}</p>
-        <p className="wrong-letters">
-            {wrongLetters.length > 0 && "Wrong letters: "}
-            {wrongLetters.map((letter, i) => (
-            <span key={i}>{letter.toUpperCase()}</span>
-            ))}
-        </p>
-        {isGameWon && <div className="popup-container" id="popup-container">
-          <div className="popup">
-            <h2>Congratulations! You won! 😃</h2>
-            <button onClick={resetGame} id="play-button">Play Again</button>
+          <div>
+            <h2>Congratulations! You won!</h2>
+            <button onClick={resetGame}>Play Again</button>
           </div>
-        </div>}
-
-        {isGameLost && <div className="popup-container" id="popup-container">
-          <div className="popup">
-            <h2>Sorry you lost! Please try again! 😃</h2>
-            <button onClick={resetGame} id="play-button">Play Again</button>
-          </div>
-        </div>}
         </div>
-    )
+      )}
+
+      {isGameLost && (
+        <div>
+          <div>
+            <h2>Sorry you lost! Please try again! </h2>
+            <button onClick={resetGame}>Play Again</button>
+          </div>
+        </div>
+      )}
+    </div>
+  );
 }
 
-export default HangerMan
+export default HangerMan;
