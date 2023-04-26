@@ -1,8 +1,11 @@
 import React, { useState, useEffect } from "react";
+import { BrowserRouter, Routes, Route, useNavigate } from "react-router-dom";
+import { useParams } from "react-router-dom";
 
 const words = ["apple", "banana", "orange", "mango", "grape"];
 
 function HangerMan() {
+  const params = useParams();
   const [word, setWord] = useState("");
   const [maskedWord, setMaskedWord] = useState("");
   const [letters, setLetters] = useState([]);
@@ -10,6 +13,7 @@ function HangerMan() {
   const [wrongLetters, setWrongLetters] = useState([]);
   const [isGameWon, setIsGameWon] = useState(false);
   const [isGameLost, setIsGameLost] = useState(false);
+  const maxNumGuesses = 6;
 
   // Generate a random word from the words array
   const generateWord = () => {
@@ -46,15 +50,21 @@ function HangerMan() {
 
   // Check if the game is lost
   const checkLoss = (wrongLetters) => {
-    return wrongLetters.length === 6;
+    return wrongLetters.length === maxNumGuesses;
   };
 
   // Reset the game state
   const resetGame = () => {
-    const newWord = generateWord();
+    var newWord = "";
+
+    console.log(params);
+    if (params.word !=  null){ newWord = params.word; }
+    else { newWord = generateWord(); }
+    
     setWord(newWord);
     setMaskedWord(maskWord(newWord));
     setLetters(newWord.split(""));
+
     setUsedLetters([]);
     setWrongLetters([]);
     setIsGameWon(false);
@@ -112,6 +122,16 @@ function HangerMan() {
   useEffect(() => {
     resetGame();
   }, []);
+  var remainingGuesses = maxNumGuesses - wrongLetters.length;
+  var score = word.length+(word.length-wrongLetters.length);
+  var tense =  "have";
+  if (isGameWon){tense = "had";}
+
+  const navigate = useNavigate();
+
+  const goToForm = (event) => {
+    navigate('/form');
+  };
 
   return (
     <div>
@@ -123,11 +143,13 @@ function HangerMan() {
         {wrongLetters.map((letter, i) => (
           <span key={i}>{letter.toUpperCase()}</span>
         ))}
+        <div>You {tense} {remainingGuesses} guesses remaining.</div>
       </p>
       {isGameWon && (
         <div>
           <div>
             <h2>Congratulations! You won!</h2>
+            <h3>Your score was {score}</h3>
             <button onClick={resetGame}>Play Again</button>
           </div>
         </div>
@@ -137,10 +159,12 @@ function HangerMan() {
         <div>
           <div>
             <h2>Sorry you lost! Please try again! </h2>
+            <h3>The word was {word}</h3>
             <button onClick={resetGame}>Play Again</button>
           </div>
         </div>
       )}
+      <button id= "formButton" onClick={goToForm}>Create custom game</button>
     </div>
   );
 }
