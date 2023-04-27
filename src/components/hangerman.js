@@ -31,7 +31,7 @@ function HangerMan() {
   // Generate a random word from the words array
   const generateWord = () => {
     const randomIndex = Math.floor(Math.random() * words.length);
-    return words[randomIndex];
+    return words[randomIndex].replaceAll(' ','');
   };
 
   // Create a masked word with underscores
