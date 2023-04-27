@@ -7,32 +7,33 @@ import "../HangerMan.css";
 //const words = ["apple", "banana", "orange", "mango", "grape"];
 
 function HangerMan() {
-  const [words,setWords] = useState(["apple", "banana", "orange", "mango", "grape"]);
-  const [params,setParams] = useState(useParams());
-  const [word, setWord] = useState("");
-  const [maskedWord, setMaskedWord] = useState("");
-  const [letters, setLetters] = useState([]);
-  const [usedLetters, setUsedLetters] = useState([]);
-  const [wrongLetters, setWrongLetters] = useState([]);
-  const [isGameWon, setIsGameWon] = useState(false);
-  const [isGameLost, setIsGameLost] = useState(false);
-  const maxNumGuesses = 6;
-  const passphrase = "1234567890";
-
-  useEffect(() => { //get words from file
-    fetch("/words.txt")
-      .then((response) => response.text())
-      .then((data) => {
-        setWords(data.split("\n"));
-      })
-      .catch((error) => console.log(error));
-  }, []);
-
-  // Generate a random word from the words array
-  const generateWord = () => {
-    const randomIndex = Math.floor(Math.random() * words.length);
-    return words[randomIndex].replaceAll(' ','');
-  };
+    const [words, setWords] = useState([]);
+    const [params, setParams] = useState(useParams());
+    const [word, setWord] = useState("");
+    const [maskedWord, setMaskedWord] = useState("");
+    const [letters, setLetters] = useState([]);
+    const [usedLetters, setUsedLetters] = useState([]);
+    const [wrongLetters, setWrongLetters] = useState([]);
+    const [isGameWon, setIsGameWon] = useState(false);
+    const [isGameLost, setIsGameLost] = useState(false);
+    const maxNumGuesses = 6;
+    const passphrase = "1234567890";
+  
+    useEffect(() => { //get words from file
+      fetch("/words.txt")
+        .then((response) => response.text())
+        .then((data) => {
+          setWords(data.split("\r\n"));
+        })
+        .catch((error) => console.log(error));
+    }, []);
+  
+    // Generate a random word from the words array
+    const generateWord = () => {
+      const randomIndex = Math.floor(Math.random() * words.length);
+      console.log(words[randomIndex]);
+      return words[randomIndex].replaceAll(' ','');
+    };
 
   // Create a masked word with underscores
   const maskWord = (word) => {
@@ -142,8 +143,10 @@ function HangerMan() {
 
   //Initialize the game state
   useEffect(() => {
-    resetGame();
-  }, []);
+    if (words.length > 0) { //ensure words is populated
+      resetGame();
+    }
+  }, [words]);
 
   var remainingGuesses = maxNumGuesses - wrongLetters.length;
   var score = word.length + (word.length - wrongLetters.length);
