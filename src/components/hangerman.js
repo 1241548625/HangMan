@@ -1,11 +1,13 @@
+
 import React, { useState, useEffect } from "react";
 import { BrowserRouter, Routes, Route, useNavigate } from "react-router-dom";
 import { useParams } from "react-router-dom";
+import "../HangerMan.css";
 
 const words = ["apple", "banana", "orange", "mango", "grape"];
 
 function HangerMan() {
-  const params = useParams(); //TOOD: page breaks when word is 20 or more letters long
+  const params = useParams();
   const [word, setWord] = useState("");
   const [maskedWord, setMaskedWord] = useState("");
   const [letters, setLetters] = useState([]);
@@ -14,15 +16,13 @@ function HangerMan() {
   const [isGameWon, setIsGameWon] = useState(false);
   const [isGameLost, setIsGameLost] = useState(false);
   const maxNumGuesses = 6;
-  const passphrase = "1234567890"; 
+  const passphrase = "1234567890";
 
-  // Generate a random word from the words array
   const generateWord = () => {
     const randomIndex = Math.floor(Math.random() * words.length);
     return words[randomIndex];
   };
 
-  // Create a masked word with underscores
   const maskWord = (word) => {
     let maskedWord = "";
     for (let i = 0; i < word.length; i++) {
@@ -31,7 +31,6 @@ function HangerMan() {
     return maskedWord;
   };
 
-  // Reveal the letter in the masked word
   const revealLetter = (letter) => {
     let newMaskedWord = "";
     for (let i = 0; i < word.length; i++) {
@@ -44,29 +43,26 @@ function HangerMan() {
     return newMaskedWord;
   };
 
-  // Check if the game is won
   const checkWin = (maskedWord) => {
     return maskedWord === word;
   };
 
-  // Check if the game is lost
   const checkLoss = (wrongLetters) => {
     return wrongLetters.length === maxNumGuesses;
   };
 
-  // Reset the game state
   const resetGame = () => {
     var newWord = "";
 
-    if (params.word !=  null){ 
-      //decrypt params and set as word
-      const CryptoJS = require('crypto-js');
+    if (params.word != null) {
+      const CryptoJS = require("crypto-js");
       const bytes = CryptoJS.AES.decrypt(params.word, passphrase);
       const original = bytes.toString(CryptoJS.enc.Utf8);
       newWord = original;
-     }
-    else { newWord = generateWord(); }
-    
+    } else {
+      newWord = generateWord();
+    }
+
     setWord(newWord);
     setMaskedWord(maskWord(newWord));
     setLetters(newWord.split(""));
@@ -77,38 +73,27 @@ function HangerMan() {
     setIsGameLost(false);
   };
 
-  // Handle the keyboard input
   const handleKeyDown = (e) => {
-    // Check if the pressed key is a letter
     if (e.keyCode >= 65 && e.keyCode <= 90) {
       const letter = e.key.toLowerCase();
 
-      // Check if the letter is in the word
       if (letters.includes(letter)) {
-        // Check if the letter has not been already guessed
         if (!usedLetters.includes(letter)) {
-          // Reveal the letter in the masked word
           const newMaskedWord = revealLetter(letter);
           setMaskedWord(newMaskedWord);
 
-          // Add the letter to the used letters array
           setUsedLetters([...usedLetters, letter]);
 
-          // Check if the game is won
           if (checkWin(newMaskedWord)) {
             setIsGameWon(true);
           }
         }
       } else {
-        // Check if the letter has not been already guessed
         if (!usedLetters.includes(letter)) {
-          // Add the letter to the wrong letters array
           setWrongLetters([...wrongLetters, letter]);
 
-          // Add the letter to the used letters array
           setUsedLetters([...usedLetters, letter]);
 
-          // Check if the game is lost
           if (checkLoss([...wrongLetters, letter])) {
             setIsGameLost(true);
           }
@@ -117,30 +102,31 @@ function HangerMan() {
     }
   };
 
-  // Add event listener for keyboard input
   useEffect(() => {
     window.addEventListener("keydown", handleKeyDown);
 
     return () => window.removeEventListener("keydown", handleKeyDown);
   });
 
-  // Initialize the game state
   useEffect(() => {
     resetGame();
   }, []);
+
   var remainingGuesses = maxNumGuesses - wrongLetters.length;
-  var score = word.length+(word.length-wrongLetters.length);
-  var tense =  "have";
-  if (isGameWon){tense = "had";}
+  var score = word.length + (word.length - wrongLetters.length);
+  var tense = "have";
+  if (isGameWon) {
+    tense = "had";
+  }
 
   const navigate = useNavigate();
 
   const goToForm = (event) => {
-    navigate('/form');
+    navigate("/form");
   };
 
   return (
-    <div>
+    <div className="container">
       <h1>Hangman</h1>
       <p>Find the hidden word - Enter a letter</p>
       <p>{maskedWord}</p>
@@ -149,28 +135,28 @@ function HangerMan() {
         {wrongLetters.map((letter, i) => (
           <span key={i}>{letter.toUpperCase()}</span>
         ))}
-        <div>You {tense} {remainingGuesses} guesses remaining.</div>
+        <div>
+          You {tense} {remainingGuesses} guesses remaining.
+        </div>
       </p>
       {isGameWon && (
         <div>
-          <div>
-            <h2>Congratulations! You won!</h2>
-            <h3>Your score was {score}</h3>
-            <button onClick={resetGame}>Play Again</button>
-          </div>
+          <h2>Congratulations! You won!</h2>
+          <h3>Your score was {score}</h3>
+          <button onClick={resetGame}>Play Again</button>
         </div>
       )}
 
       {isGameLost && (
         <div>
-          <div>
-            <h2>Sorry you lost! Please try again! </h2>
-            <h3>The word was {word}</h3>
-            <button onClick={resetGame}>Play Again</button>
-          </div>
+          <h2>Sorry you lost! Please try again! </h2>
+          <h3>The word was {word}</h3>
+          <button onClick={resetGame}>Play Again</button>
         </div>
       )}
-      <button id= "formButton" onClick={goToForm}>Create custom game</button>
+      <button id="formButton" onClick={goToForm}>
+        Create custom game
+      </button>
     </div>
   );
 }
