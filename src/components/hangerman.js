@@ -7,7 +7,8 @@ import "../HangerMan.css";
 const words = ["apple", "banana", "orange", "mango", "grape"];
 
 function HangerMan() {
-  const params = useParams();
+  const [params,setParams] = useState(useParams());
+  console.log(params.word)
   const [word, setWord] = useState("");
   const [maskedWord, setMaskedWord] = useState("");
   const [letters, setLetters] = useState([]);
@@ -56,9 +57,10 @@ function HangerMan() {
 
     if (params.word != null) {
       const CryptoJS = require("crypto-js");
-      const bytes = CryptoJS.AES.decrypt(params.word, passphrase);
+      const bytes = CryptoJS.AES.decrypt(params.word.replaceAll('~','/'), passphrase);
       const original = bytes.toString(CryptoJS.enc.Utf8);
       newWord = original;
+      setParams("");
     } else {
       newWord = generateWord();
     }
@@ -74,32 +76,34 @@ function HangerMan() {
   };
 
   const handleKeyDown = (e) => {
-    if (e.keyCode >= 65 && e.keyCode <= 90) {
-      const letter = e.key.toLowerCase();
+    if (!isGameWon){
+      if (e.keyCode >= 65 && e.keyCode <= 90) {
+        const letter = e.key.toLowerCase();
 
-      if (letters.includes(letter)) {
-        if (!usedLetters.includes(letter)) {
-          const newMaskedWord = revealLetter(letter);
-          setMaskedWord(newMaskedWord);
+        if (letters.includes(letter)) {
+          if (!usedLetters.includes(letter)) {
+            const newMaskedWord = revealLetter(letter);
+            setMaskedWord(newMaskedWord);
 
-          setUsedLetters([...usedLetters, letter]);
+            setUsedLetters([...usedLetters, letter]);
 
-          if (checkWin(newMaskedWord)) {
-            setIsGameWon(true);
+            if (checkWin(newMaskedWord)) {
+              setIsGameWon(true);
+            }
           }
-        }
-      } else {
-        if (!usedLetters.includes(letter)) {
-          setWrongLetters([...wrongLetters, letter]);
+        } else {
+          if (!usedLetters.includes(letter)) {
+            setWrongLetters([...wrongLetters, letter]);
 
-          setUsedLetters([...usedLetters, letter]);
+            setUsedLetters([...usedLetters, letter]);
 
-          if (checkLoss([...wrongLetters, letter])) {
-            setIsGameLost(true);
+            if (checkLoss([...wrongLetters, letter])) {
+              setIsGameLost(true);
+            }
           }
         }
       }
-    }
+  }
   };
 
   useEffect(() => {
