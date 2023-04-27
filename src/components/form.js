@@ -17,9 +17,12 @@ function CustomGameForm() {
 
   const handleSubmit = (event) => {
     event.preventDefault();
-    const CryptoJS = require('crypto-js');
-    var encryptedText = CryptoJS.AES.encrypt(word.toLowerCase(), passphrase).toString();  //encrypt word
-    setUrl(document.URL.replace("form","")+encryptedText.replaceAll('/','~')); //slash replaced to not interfere with url
+    const formattedWord = word.replaceAll(/[^a-zA-Z]/g, "").toLowerCase(); //remove special characters and make sure letters are lowercase
+    if (formattedWord != ""){
+      const CryptoJS = require('crypto-js');
+      var encryptedText = CryptoJS.AES.encrypt(formattedWord, passphrase).toString();  //encrypt word
+      setUrl(document.URL.replace("form","")+encryptedText.replaceAll('/','~')); //create url with custom word; slash replaced to not interfere with url
+    }
   };
   
   return (

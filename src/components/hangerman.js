@@ -4,11 +4,11 @@ import { BrowserRouter, Routes, Route, useNavigate } from "react-router-dom";
 import { useParams } from "react-router-dom";
 import "../HangerMan.css";
 
-const words = ["apple", "banana", "orange", "mango", "grape"];
+//const words = ["apple", "banana", "orange", "mango", "grape"];
 
 function HangerMan() {
+  const [words,setWords] = useState(["apple", "banana", "orange", "mango", "grape"]);
   const [params,setParams] = useState(useParams());
-  console.log(params.word)
   const [word, setWord] = useState("");
   const [maskedWord, setMaskedWord] = useState("");
   const [letters, setLetters] = useState([]);
@@ -19,11 +19,22 @@ function HangerMan() {
   const maxNumGuesses = 6;
   const passphrase = "1234567890";
 
+  useEffect(() => { //get words from file
+    fetch("/words.txt")
+      .then((response) => response.text())
+      .then((data) => {
+        setWords(data.split("\n"));
+      })
+      .catch((error) => console.log(error));
+  }, []);
+
+  // Generate a random word from the words array
   const generateWord = () => {
     const randomIndex = Math.floor(Math.random() * words.length);
     return words[randomIndex];
   };
 
+  // Create a masked word with underscores
   const maskWord = (word) => {
     let maskedWord = "";
     for (let i = 0; i < word.length; i++) {
@@ -32,6 +43,7 @@ function HangerMan() {
     return maskedWord;
   };
 
+  // Reveal the letter in the masked word
   const revealLetter = (letter) => {
     let newMaskedWord = "";
     for (let i = 0; i < word.length; i++) {
@@ -44,18 +56,22 @@ function HangerMan() {
     return newMaskedWord;
   };
 
+  // Check if the game is won
   const checkWin = (maskedWord) => {
     return maskedWord === word;
   };
 
+  // Check if the game is lost
   const checkLoss = (wrongLetters) => {
     return wrongLetters.length === maxNumGuesses;
   };
 
+  //Reset the game state
   const resetGame = () => {
     var newWord = "";
 
     if (params.word != null) {
+      //decrypt params and set as word
       const CryptoJS = require("crypto-js");
       const bytes = CryptoJS.AES.decrypt(params.word.replaceAll('~','/'), passphrase);
       const original = bytes.toString(CryptoJS.enc.Utf8);
@@ -75,28 +91,39 @@ function HangerMan() {
     setIsGameLost(false);
   };
 
+  //Handle the keyboard input
   const handleKeyDown = (e) => {
-    if (!isGameWon){
+    if (!isGameWon && !isGameLost){
+      //Check if the pressed key is a letter
       if (e.keyCode >= 65 && e.keyCode <= 90) {
         const letter = e.key.toLowerCase();
 
+        //Check if the letter is in the word
         if (letters.includes(letter)) {
+          //Check if the letter has not been already guessed
           if (!usedLetters.includes(letter)) {
+            //Check if the letter has not been already guessed
             const newMaskedWord = revealLetter(letter);
             setMaskedWord(newMaskedWord);
 
+            //Add the letter to the used letters array
             setUsedLetters([...usedLetters, letter]);
 
+            //Check if the game is won
             if (checkWin(newMaskedWord)) {
               setIsGameWon(true);
             }
           }
         } else {
+          //Check if the letter has not been already guessed
           if (!usedLetters.includes(letter)) {
+            //Add the letter to the wrong letters array
             setWrongLetters([...wrongLetters, letter]);
 
+            //Add the letter to the used letters array
             setUsedLetters([...usedLetters, letter]);
 
+            //Check if the game is lost
             if (checkLoss([...wrongLetters, letter])) {
               setIsGameLost(true);
             }
@@ -106,12 +133,14 @@ function HangerMan() {
   }
   };
 
+  //Add event listener for keyboard input
   useEffect(() => {
     window.addEventListener("keydown", handleKeyDown);
 
     return () => window.removeEventListener("keydown", handleKeyDown);
   });
 
+  //Initialize the game state
   useEffect(() => {
     resetGame();
   }, []);
