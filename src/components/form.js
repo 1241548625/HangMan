@@ -18,7 +18,7 @@ function CustomGameForm() {
   const handleSubmit = (event) => {
     event.preventDefault();
     const CryptoJS = require('crypto-js');
-    var encryptedText = CryptoJS.AES.encrypt(word.toLowerCase(), passphrase).toString();  //encrypt word
+    var encryptedText = CryptoJS.AES.encrypt(word.toLowerCase().replaceAll(' ',''), passphrase).toString();  //encrypt word
     setUrl(document.URL.replace("form","")+encryptedText.replaceAll('/','~')); //slash replaced to not interfere with url
   };
   
