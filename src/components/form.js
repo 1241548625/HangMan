@@ -26,41 +26,43 @@ function CustomGameForm() {
   };
   
   return (
-    <Container>
-      <div
-        style={{
-          position: "absolute",
-          left: "50%",
-          top: "50%",
-          transform: "translate(-50%, -50%)",
-          padding: "50px",
-          borderRadius: "5px",
-          boxShadow: "3px 3px 9px 3px lightgrey",
-          minWidth: "400px",
-        }}
-      >
-        <Form onSubmit={handleSubmit}>
-          <Form.Group className="mb-3" controlId="exampleForm.ControlInput1">
-            <Form.Label>
-              <h1>Custom Hangman</h1>
-            </Form.Label>
-            <br></br>
-            <Form.Control
-              type="text"
-              placeholder="Please Enter A Word"
-              value={word}
-              onChange={handleChange}
-            />
-          </Form.Group>
-          <Button type="submit" style={{ float: "right" }}>
-            Submit
-          </Button>
-        </Form>
-        <a href={url}>
-          <div>{url}</div>
-        </a>
-      </div>
-    </Container>
+<Container>
+  <div
+    style={{
+      position: "absolute",
+      left: "50%",
+      top: "50%",
+      transform: "translate(-50%, -50%)",
+      padding: "50px",
+      borderRadius: "5px",
+      boxShadow: "3px 3px 9px 3px lightgrey",
+      minWidth: "400px",
+    }}
+  >
+    <Form onSubmit={handleSubmit}>
+      <Form.Group className="mb-3" controlId="exampleForm.ControlInput1">
+        <Form.Label>
+          <h1>Custom Hangman</h1>
+        </Form.Label>
+        <br></br>
+        <Form.Control
+          type="text"
+          placeholder="Please Enter A Word"
+          value={word}
+          onChange={handleChange}
+        />
+      </Form.Group>
+      <Button type="submit" style={{ float: "right" }}>
+        Submit
+      </Button>
+    </Form>
+    <div style={{ width: "300px", wordWrap: "break-word" }}>
+      <a href={url}>{url}</a>
+    </div>
+  </div>
+</Container>
+
+
   );
 }
 

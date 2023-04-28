@@ -47,6 +47,8 @@ function HangerMan() {
   const [scoreData, setScoreData] = useState([]);
   const maxNumGuesses = 6; // to match hangman draw
   const passphrase = "1234567890";
+  const [inputValue, setInputValue] = useState("");
+
 
   useEffect(() => {
     //get words from file
@@ -126,52 +128,58 @@ function HangerMan() {
   };
 
   //Handle the keyboard input
-  const handleKeyDown = (e) => {
-    // disable when model shows up
-    if (showSaveScoreForm) {
-      return;
-    }
-    if (!isGameWon && !isGameLost) {
-      //Check if the pressed key is a letter
-      if (e.keyCode >= 65 && e.keyCode <= 90) {
-        const letter = e.key.toLowerCase();
+//Handle the keyboard input
+const handleInput = (e) => {
+  // disable when model shows up
+  if (showSaveScoreForm) {
+    return;
+  }
+  if (e.target && e.target.value && !isGameWon && !isGameLost) {
+    const letter = e.target.value.trim().toLowerCase();
+    if (/^[a-zA-Z]$/.test(letter)) {
 
-        //Check if the letter is in the word
-        if (letters.includes(letter)) {
-          //Check if the letter has not been already guessed
-          if (!usedLetters.includes(letter)) {
-            //Check if the letter has not been already guessed
-            const newMaskedWord = revealLetter(letter);
-            setMaskedWord(newMaskedWord);
+    //Check if the letter is in the word
+    if (letters.includes(letter)) {
+      //Check if the letter has not been already guessed
+      if (!usedLetters.includes(letter)) {
+        //Check if the letter has not been already guessed
+        const newMaskedWord = revealLetter(letter);
+        setMaskedWord(newMaskedWord);
 
-            //Add the letter to the used letters array
-            setUsedLetters([...usedLetters, letter]);
+        //Add the letter to the used letters array
+        setUsedLetters([...usedLetters, letter]);
 
-            //Check if the game is won
-            if (checkWin(newMaskedWord)) {
-              setIsGameWon(true);
-            }
-          }
-        } else {
-          //Check if the letter has not been already guessed
-          if (!usedLetters.includes(letter)) {
-            //Add the letter to the wrong letters array
-            setWrongLetters([...wrongLetters, letter]);
-            document.getElementById("hmanGraphic").src =
-              "/hman-" + (wrongLetters.length + 1) + ".png"; //remove limbs with each incorrect guess
+        //Check if the game is won
+        if (checkWin(newMaskedWord)) {
+          setIsGameWon(true);
+        }
+      }
+    } else {
+      //Check if the letter has not been already guessed
+      if (!usedLetters.includes(letter)) {
+        console.log(letter);
+        //Add the letter to the wrong letters array
+        setWrongLetters([...wrongLetters, letter]);
+        document.getElementById("hmanGraphic").src =
+          "/hman-" + (wrongLetters.length + 1) + ".png"; //remove limbs with each incorrect guess
 
-            //Add the letter to the used letters array
-            setUsedLetters([...usedLetters, letter]);
+        //Add the letter to the used letters array
+        setUsedLetters([...usedLetters, letter]);
 
-            //Check if the game is lost
-            if (checkLoss([...wrongLetters, letter])) {
-              setIsGameLost(true);
-            }
-          }
+        //Check if the game is lost
+        if (checkLoss([...wrongLetters, letter])) {
+          setIsGameLost(true);
         }
       }
     }
-  };
+
+    // clear input value after handling input
+    setInputValue("");
+  }
+}
+};
+
+
 
   const loadScoreData = () => {
     const db = getDatabase();
@@ -194,9 +202,9 @@ function HangerMan() {
 
   //Add event listener for keyboard input
   useEffect(() => {
-    window.addEventListener("keydown", handleKeyDown);
+    window.addEventListener("keydown", handleInput);
 
-    return () => window.removeEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleInput);
   });
 
   //Initialize the game state
@@ -268,7 +276,11 @@ function HangerMan() {
       </Button>
       <h1 style={{ marginTop: "0.5rem" }}>Hangman</h1>
       <p>Find the hidden word - Enter a letter</p>
+      
       <p>{maskedWord}</p>
+
+
+
       <p style={{ textAlign: "center" }}>
         {wrongLetters.length > 0 && "Wrong letters: "}
         {wrongLetters.map((letter, i) => (
@@ -278,6 +290,7 @@ function HangerMan() {
           <img id="hmanGraphic" src="/hman-0.png" width="50%" />
         </div>
       </p>
+
 
       {isGameWon && (
         <div style={{ textAlign: "center" }}>
@@ -300,6 +313,9 @@ function HangerMan() {
             <button onClick={resetGame}>Play Again</button>
           </Alert>
         </div>
+      )}
+      {(!isGameLost && !isGameWon) && (
+        <input type="text" onInput={handleInput} placeholder="Enter a letter here" value={inputValue} style={{ marginBottom: "0.75rem" }}/>
       )}
 
       <Modal
