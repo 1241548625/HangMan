@@ -56,7 +56,9 @@ function CustomGameForm() {
             Submit
           </Button>
         </Form>
-        <div>{url}</div>
+        <a href={url}>
+          <div>{url}</div>
+        </a>
       </div>
     </Container>
   );
