@@ -1,13 +1,12 @@
-
 import React, { useState, useEffect } from "react";
 import { BrowserRouter, Routes, Route, useNavigate } from "react-router-dom";
 import { useParams } from "react-router-dom";
-import Modal from "react-bootstrap/Modal"
-import Alert from "react-bootstrap/Alert"
-import Button from "react-bootstrap/Button"
+import Modal from "react-bootstrap/Modal";
+import Alert from "react-bootstrap/Alert";
+import Button from "react-bootstrap/Button";
 import LeaderBoard from "./leaderboard";
 import SaveScoreForm from "./savescoreform";
-import HangManCanvas from "./hangmancanvas";
+// import HangManCanvas from "./hangmancanvas";
 import "../HangerMan.css";
 
 // Import the functions you need from the SDKs you need
@@ -33,37 +32,38 @@ const app = initializeApp(firebaseConfig);
 //const words = ["apple", "banana", "orange", "mango", "grape"];
 
 function HangerMan() {
-    const [words, setWords] = useState([]);
-    const [params, setParams] = useState(useParams());
-    const [word, setWord] = useState("");
-    const [maskedWord, setMaskedWord] = useState("");
-    const [letters, setLetters] = useState([]);
-    const [usedLetters, setUsedLetters] = useState([]);
-    const [wrongLetters, setWrongLetters] = useState([]);
-    const [isGameWon, setIsGameWon] = useState(false);
-    const [isGameLost, setIsGameLost] = useState(false);
-    const [showSaveScoreForm, setShowSaveScoreForm] = useState(false);
-    const [showLeaderBoard, setShowLeaderBoard] = useState(false);
-    const [playerName, setPlayerName] = useState('')
-    const [scoreData, setScoreData] = useState([])
-    const maxNumGuesses = 7; // to match hangman draw
-    const passphrase = "1234567890";
-  
-    useEffect(() => { //get words from file
-      fetch("/words.txt")
-        .then((response) => response.text())
-        .then((data) => {
-          setWords(data.split("\n")); // change \r\n to \n to prevent problem in windows machine. \r will be remove in the end of generateWord function
-        })
-        .catch((error) => console.log(error));
-    }, []);
-  
-    // Generate a random word from the words array
-    const generateWord = () => {
-      const randomIndex = Math.floor(Math.random() * words.length);
-      // console.log(words[randomIndex]);
-      return words[randomIndex].replaceAll('\r', '').replaceAll(' ',''); // remove \r words.txt is on windows machine
-    };
+  const [words, setWords] = useState([]);
+  const [params, setParams] = useState(useParams());
+  const [word, setWord] = useState("");
+  const [maskedWord, setMaskedWord] = useState("");
+  const [letters, setLetters] = useState([]);
+  const [usedLetters, setUsedLetters] = useState([]);
+  const [wrongLetters, setWrongLetters] = useState([]);
+  const [isGameWon, setIsGameWon] = useState(false);
+  const [isGameLost, setIsGameLost] = useState(false);
+  const [showSaveScoreForm, setShowSaveScoreForm] = useState(false);
+  const [showLeaderBoard, setShowLeaderBoard] = useState(false);
+  const [playerName, setPlayerName] = useState("");
+  const [scoreData, setScoreData] = useState([]);
+  const maxNumGuesses = 6; // to match hangman draw
+  const passphrase = "1234567890";
+
+  useEffect(() => {
+    //get words from file
+    fetch("/words.txt")
+      .then((response) => response.text())
+      .then((data) => {
+        setWords(data.split("\n")); // change \r\n to \n to prevent problem in windows machine. \r will be remove in the end of generateWord function
+      })
+      .catch((error) => console.log(error));
+  }, []);
+
+  // Generate a random word from the words array
+  const generateWord = () => {
+    const randomIndex = Math.floor(Math.random() * words.length);
+    // console.log(words[randomIndex]);
+    return words[randomIndex].replaceAll("\r", "").replaceAll(" ", ""); // remove \r words.txt is on windows machine
+  };
 
   // Create a masked word with underscores
   const maskWord = (word) => {
@@ -100,12 +100,15 @@ function HangerMan() {
   //Reset the game state
   const resetGame = () => {
     var newWord = "";
-    document.getElementById("hmanGraphic").src = ("/hman-0.png"); //reset graphic
+    document.getElementById("hmanGraphic").src = "/hman-0.png"; //reset graphic
 
     if (params.word != null) {
       //decrypt params and set as word
       const CryptoJS = require("crypto-js");
-      const bytes = CryptoJS.AES.decrypt(params.word.replaceAll('~','/'), passphrase);
+      const bytes = CryptoJS.AES.decrypt(
+        params.word.replaceAll("~", "/"),
+        passphrase
+      );
       const original = bytes.toString(CryptoJS.enc.Utf8);
       newWord = original;
       setParams("");
@@ -126,9 +129,9 @@ function HangerMan() {
   const handleKeyDown = (e) => {
     // disable when model shows up
     if (showSaveScoreForm) {
-      return
+      return;
     }
-    if (!isGameWon && !isGameLost){
+    if (!isGameWon && !isGameLost) {
       //Check if the pressed key is a letter
       if (e.keyCode >= 65 && e.keyCode <= 90) {
         const letter = e.key.toLowerCase();
@@ -154,7 +157,8 @@ function HangerMan() {
           if (!usedLetters.includes(letter)) {
             //Add the letter to the wrong letters array
             setWrongLetters([...wrongLetters, letter]);
-            document.getElementById("hmanGraphic").src = ("/hman-"+(wrongLetters.length+1)+".png"); //remove limbs with each incorrect guess
+            document.getElementById("hmanGraphic").src =
+              "/hman-" + (wrongLetters.length + 1) + ".png"; //remove limbs with each incorrect guess
 
             //Add the letter to the used letters array
             setUsedLetters([...usedLetters, letter]);
@@ -166,24 +170,27 @@ function HangerMan() {
           }
         }
       }
-  }
+    }
   };
 
-  const loadScoreData = ()=>{
+  const loadScoreData = () => {
     const db = getDatabase();
     const dbRef = ref(db, "/user");
     onValue(dbRef, (snapshot) => {
-      const data = []
-      snapshot.forEach((user)=>{
-        data.push({ key: user.key, name: user.val().name, score: user.val().score})
-      })
-      data.sort((a, b)=>{
-        return b.score - a.score
-      })
-      setScoreData(data)
-    })
-  }
-
+      const data = [];
+      snapshot.forEach((user) => {
+        data.push({
+          key: user.key,
+          name: user.val().name,
+          score: user.val().score,
+        });
+      });
+      data.sort((a, b) => {
+        return b.score - a.score;
+      });
+      setScoreData(data);
+    });
+  };
 
   //Add event listener for keyboard input
   useEffect(() => {
@@ -194,7 +201,8 @@ function HangerMan() {
 
   //Initialize the game state
   useEffect(() => {
-    if (words.length > 0) { //ensure words is populated
+    if (words.length > 0) {
+      //ensure words is populated
       resetGame();
       loadScoreData();
     }
@@ -213,13 +221,13 @@ function HangerMan() {
     navigate("/form");
   };
 
-  const closeSaveScoreForm = ()=>{
-    setShowSaveScoreForm(false)
-  }
+  const closeSaveScoreForm = () => {
+    setShowSaveScoreForm(false);
+  };
 
-  const saveScore = (name) =>{
-    setShowSaveScoreForm(false)
-    console.log(`Save user score: ${name} ${score}`)
+  const saveScore = (name) => {
+    setShowSaveScoreForm(false);
+    console.log(`Save user score: ${name} ${score}`);
     const db = getDatabase();
     var dbRef = "";
 
@@ -230,50 +238,62 @@ function HangerMan() {
     // else {
     //   dbRef = push(ref(db, "users/"))
     // }
-    dbRef = push(ref(db, "user/"))
-    console.log(`Save user score: ${name} ${score} ${dbRef}`)
+    dbRef = push(ref(db, "user/"));
+    console.log(`Save user score: ${name} ${score} ${dbRef}`);
     set(dbRef, {
       name: name,
-      score: score
-    }).then(()=>{
-      // a unique key will generate and save in local storage
-      // to help highlight the user score in leaderboard.
-      localStorage.setItem("playerKey", dbRef.key)
-      alert("Score save successfully")
-    }).catch(()=>{
-      alert("Fail to save score, please try again.")
+      score: score,
     })
-  }
+      .then(() => {
+        // a unique key will generate and save in local storage
+        // to help highlight the user score in leaderboard.
+        localStorage.setItem("playerKey", dbRef.key);
+        alert("Score save successfully");
+      })
+      .catch(() => {
+        alert("Fail to save score, please try again.");
+      });
+  };
 
   return (
     <div className="container">
-      <Button variant="link" onClick={(e)=>{e.preventDefault(); setShowLeaderBoard(true)}}>Leaderboard</Button>
+      <Button
+        variant="link"
+        onClick={(e) => {
+          e.preventDefault();
+          setShowLeaderBoard(true);
+        }}
+      >
+        Leaderboard
+      </Button>
       <h1 style={{ marginTop: "0.5rem" }}>Hangman</h1>
       <p>Find the hidden word - Enter a letter</p>
       <p>{maskedWord}</p>
-      <p style = {{textAlign:"center"}}>
+      <p style={{ textAlign: "center" }}>
         {wrongLetters.length > 0 && "Wrong letters: "}
         {wrongLetters.map((letter, i) => (
           <span key={i}>{letter.toUpperCase()}</span>
         ))}
         <div>
-          <img id= "hmanGraphic" src="/hman-0.png" width="50%"/>
+          <img id="hmanGraphic" src="/hman-0.png" width="50%" />
         </div>
       </p>
-      
+
       {isGameWon && (
-        <div style={{textAlign: "center"}}>
+        <div style={{ textAlign: "center" }}>
           <Alert variant="success">
             <h2>Congratulations! You won!</h2>
             <h3>Your score was {score}</h3>
             <button onClick={resetGame}>Play Again</button>
-            <button onClick={()=>setShowSaveScoreForm(true)}>Save Score</button>
+            <button onClick={() => setShowSaveScoreForm(true)}>
+              Save Score
+            </button>
           </Alert>
         </div>
       )}
 
       {isGameLost && (
-        <div style={{textAlign: "center", margin: "10px"}}>
+        <div style={{ textAlign: "center", margin: "10px" }}>
           <Alert variant="secondary">
             <h2>Sorry you lost! Please try again! </h2>
             <h3>The word was {word}</h3>
@@ -282,18 +302,28 @@ function HangerMan() {
         </div>
       )}
 
-      <Modal show={showSaveScoreForm} onHide={closeSaveScoreForm} style={{ padding: 10 }}>
+      <Modal
+        show={showSaveScoreForm}
+        onHide={closeSaveScoreForm}
+        style={{ padding: 10 }}
+      >
         <Modal.Header closeButton>
-        <h3>Your score was {score}</h3>
+          <h3>Your score was {score}</h3>
         </Modal.Header>
         <Modal.Body>
-          <SaveScoreForm setPlayerName={setPlayerName} saveScore={saveScore}></SaveScoreForm>
+          <SaveScoreForm
+            setPlayerName={setPlayerName}
+            saveScore={saveScore}
+          ></SaveScoreForm>
         </Modal.Body>
       </Modal>
 
-      <Modal show={showLeaderBoard} onHide={setShowLeaderBoard} style={{ padding: "10" }}>
-        <Modal.Header closeButton>
-        </Modal.Header>
+      <Modal
+        show={showLeaderBoard}
+        onHide={setShowLeaderBoard}
+        style={{ padding: "10" }}
+      >
+        <Modal.Header closeButton></Modal.Header>
         <Modal.Body>
           <LeaderBoard data={scoreData} playerName={playerName}></LeaderBoard>
         </Modal.Body>
@@ -303,7 +333,7 @@ function HangerMan() {
         Create custom game
       </button>
 
-      <HangManCanvas step={wrongLetters.length}></HangManCanvas>
+      {/* <HangManCanvas step={wrongLetters.length}></HangManCanvas> */}
     </div>
   );
 }
