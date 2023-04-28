@@ -304,29 +304,6 @@ function HangerMan() {
       </button>
 
       <HangManCanvas step={wrongLetters.length}></HangManCanvas>
-        <div>
-          You {tense} {remainingGuesses} guesses remaining.
-        </div>
-      <div>
-        {isGameWon && (
-          <div>
-            <h2>Congratulations! You won!</h2>
-            <h3>Your score was {score}</h3>
-            <button onClick={resetGame}>Play Again</button>
-          </div>
-        )}
-
-        {isGameLost && (
-          <div>
-            <h2>Sorry you lost! Please try again! </h2>
-            <h3>The word was {word}</h3>
-            <button onClick={resetGame}>Play Again</button>
-          </div>
-        )}
-        <button id="formButton" onClick={goToForm}>
-          Create custom game
-        </button>
-      </div>
     </div>
   );
 }
