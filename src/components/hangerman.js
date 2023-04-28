@@ -70,6 +70,7 @@ function HangerMan() {
   //Reset the game state
   const resetGame = () => {
     var newWord = "";
+    document.getElementById("hmanGraphic").src = ("/hman-0.png"); //reset graphic
 
     if (params.word != null) {
       //decrypt params and set as word
@@ -120,6 +121,7 @@ function HangerMan() {
           if (!usedLetters.includes(letter)) {
             //Add the letter to the wrong letters array
             setWrongLetters([...wrongLetters, letter]);
+            document.getElementById("hmanGraphic").src = ("/hman-"+(wrongLetters.length+1)+".png"); //remove limbs with each incorrect guess
 
             //Add the letter to the used letters array
             setUsedLetters([...usedLetters, letter]);
@@ -163,36 +165,41 @@ function HangerMan() {
 
   return (
     <div className="container">
-      <h1>Hangman</h1>
+      <h1 style={{ marginTop: "0.5rem" }}>Hangman</h1>
       <p>Find the hidden word - Enter a letter</p>
       <p>{maskedWord}</p>
-      <p>
+      <p style = {{textAlign:"center"}}>
         {wrongLetters.length > 0 && "Wrong letters: "}
         {wrongLetters.map((letter, i) => (
           <span key={i}>{letter.toUpperCase()}</span>
         ))}
         <div>
+          <img id= "hmanGraphic" src="/hman-0.png" width="50%"/>
+        </div>
+        <div>
           You {tense} {remainingGuesses} guesses remaining.
         </div>
       </p>
-      {isGameWon && (
-        <div>
-          <h2>Congratulations! You won!</h2>
-          <h3>Your score was {score}</h3>
-          <button onClick={resetGame}>Play Again</button>
-        </div>
-      )}
+      <div>
+        {isGameWon && (
+          <div>
+            <h2>Congratulations! You won!</h2>
+            <h3>Your score was {score}</h3>
+            <button onClick={resetGame}>Play Again</button>
+          </div>
+        )}
 
-      {isGameLost && (
-        <div>
-          <h2>Sorry you lost! Please try again! </h2>
-          <h3>The word was {word}</h3>
-          <button onClick={resetGame}>Play Again</button>
-        </div>
-      )}
-      <button id="formButton" onClick={goToForm}>
-        Create custom game
-      </button>
+        {isGameLost && (
+          <div>
+            <h2>Sorry you lost! Please try again! </h2>
+            <h3>The word was {word}</h3>
+            <button onClick={resetGame}>Play Again</button>
+          </div>
+        )}
+        <button id="formButton" onClick={goToForm}>
+          Create custom game
+        </button>
+      </div>
     </div>
   );
 }
